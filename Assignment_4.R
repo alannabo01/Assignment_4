@@ -72,10 +72,20 @@ average_report_delay <- average_report_delay[order(average_report_delay$Average_
 print(average_report_delay)
 
 # Checking the duration seconds column for errors 
-# Checking for NA
+# Checking for NA by using the sum function
+missing_values <- sum(is.na(ufo_subset$duration.seconds))
+missing_values
+ufo_subset <- ufo_subset[!ufo_subset$duration.seconds == "", ]
 
 # Checking format
+data_format <- class(ufo_subset$duration.seconds)
+data_format
+ufo_subset$duration_seconds <- as.numeric(ufo_subset$duration.seconds)
+ufo_subset$duration_seconds <- as.numeric(as.character(ufo_subset$duration.seconds))
 
-# Checking range 
+# Checking range and removing numbers that are not within it
+ufo_subset <- ufo_subset[ufo_subset$duration.seconds >= 10 & ufo_subset$duration.seconds <= 1000, ]
+View(ufo_subset)
 
-# Plotting histogram
+# Plotting histogram 
+hist(ufo_subset$duration_seconds, xlab = "Duration (seconds)", ylab = "Frequency", main = "Histogram of Duration in Seconds")
