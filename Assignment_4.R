@@ -71,3 +71,11 @@ average_report_delay <- average_report_delay[order(average_report_delay$Average_
 # Printing the table
 print(average_report_delay)
 
+# Checking the duration seconds column for errors 
+# Checking for NA
+
+# Checking format
+
+# Checking range 
+
+# Plotting histogram
