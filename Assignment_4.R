@@ -22,13 +22,10 @@ View(ufo_subset)
 ufo_subset <- ufo_subset[!ufo_subset$country == "", ]
 View(ufo_subset)
 
-# Extracting country information from City column *** EDIT THIS 
-missing_countries <- which(ufo_subset$country == "")
-ufo_subset$country[missing_countries] <- gsub(".*\\[(.*?)\\].*", "\\1", ufo_subset$city)[missing_countries]
-
-# Converting datetime column to appropriate format *** EDIT THIS
-ufo_subset$date_posted <- as.Date(ufo_subset$date_posted, format = "%y-%m-%d")
-ufo_subset$date_posted <- as.Date(format(ufo_subset$date_posted, "%Y-%m-%d"))
+# Converting datetime column to appropriate format 
+ufo_subset$date_posted <- as.Date(ufo_subset$date_posted, format = "%d-%m-%Y")
+# Converting the date format to "YYYY-MM-DD"
+ufo_subset$date_posted <- format(ufo_subset$date_posted, "%Y-%m-%d")
 
 # Converting date_posted column to Date format 
 ufo_subset$date_posted <- as.POSIXct(ufo_subset$date_posted, format = "%Y-%m-%d")
@@ -46,16 +43,12 @@ View(ufo_subset)
 
 # Calculating the count of hoax and non-hoax sightings per country
 hoax_count <- table(ufo_subset$country, ufo_subset$is_hoax)
-
 # Calculating the percentage of hoax sightings per country
 hoax_percentage <- prop.table(hoax_count, margin = 1) * 100
-
 # Creating a data frame from the table
 hoax_percentage_df <- as.data.frame(hoax_percentage)
-
 # Renaming the columns
 colnames(hoax_percentage_df) <- c("Country", "Hoax Validity", "Percentage")
-
 # Printing the table
 print(hoax_percentage_df)
 
@@ -69,15 +62,12 @@ View(ufo_subset)
 
 # Calculating the report delay in days
 ufo_subset$report_delay <- as.numeric(difftime(ufo_subset$date_posted, ufo_subset$datetime, units = "days"))
-
 # Calculating the average report delay per country using dplyr
 average_report_delay <- ufo_subset %>%
   group_by(country) %>%
   summarize(Average_Report_Delay = mean(report_delay))
-
 # Sorting the table by average report delay
 average_report_delay <- average_report_delay[order(average_report_delay$Average_Report_Delay), ]
-
 # Printing the table
 print(average_report_delay)
 
