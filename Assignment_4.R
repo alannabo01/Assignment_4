@@ -26,17 +26,14 @@ View(ufo_subset)
 ufo_subset$date_posted <- as.Date(ufo_subset$date_posted, format = "%d-%m-%Y")
 # Converting the date format to "YYYY-MM-DD"
 ufo_subset$date_posted <- format(ufo_subset$date_posted, "%Y-%m-%d")
-
 # Converting date_posted column to Date format 
 ufo_subset$date_posted <- as.POSIXct(ufo_subset$date_posted, format = "%Y-%m-%d")
 View(ufo_subset)
 
 # Creating a new column "is_hoax" and initialize with FALSE
 ufo_subset$is_hoax <- FALSE
-
 # Defining keywords indicating possible hoax reports
 hoax_keywords <- c("fake", "hoax", "prank", "fabricated", "fraud")
-
 # Filtering the rows based on comment keywords and update "is_hoax" column
 ufo_subset$is_hoax <- grepl(paste0("\\b(", paste(hoax_keywords, collapse = "|"), ")\\b"), ufo_subset$comments, ignore.case = TRUE)
 View(ufo_subset)
