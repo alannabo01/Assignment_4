@@ -15,31 +15,31 @@ ufo_subset <- read.csv("ufo_subset.csv")
 View(ufo_subset)
 
 # Imputing missing Shape information
-ufo_subset$shape <- ifelse(ufo_subset$shape == "", "unknown", ufo_subset$shape)
-View(ufo_subset)
+ufo_modified <- ufo_subset %>%
+  mutate(shape = ifelse(shape == "", "unknown", shape))
+View(ufo_modified)
 
 # Removing rows without Country information
-ufo_subset <- ufo_subset[!ufo_subset$country == "", ]
-View(ufo_subset)
+ufo_modified <- ufo_modified %>%
+  filter(!country == "")
+View(ufo_modified)
 
 # Converting datetime column to appropriate format 
-ufo_subset$date_posted <- as.Date(ufo_subset$date_posted, format = "%d-%m-%Y")
-# Converting the date format to "YYYY-MM-DD"
-ufo_subset$date_posted <- format(ufo_subset$date_posted, "%Y-%m-%d")
-# Converting date_posted column to Date format 
-ufo_subset$date_posted <- as.POSIXct(ufo_subset$date_posted, format = "%Y-%m-%d")
-View(ufo_subset)
+ufo_modified <- ufo_modified %>%
+  mutate(date_posted = as.POSIXct(format(as.Date(date_posted, format = "%d-%m-%Y"), "%Y-%m-%d")))
+View(ufo_modified)
 
 # Creating a new column "is_hoax" and initialize with FALSE
-ufo_subset$is_hoax <- FALSE
+ufo_modified <- ufo_modified %>%
+  mutate(is_hoax = FALSE)
 # Defining keywords indicating possible hoax reports
 hoax_keywords <- c("fake", "hoax", "prank", "fabricated", "fraud")
 # Filtering the rows based on comment keywords and update "is_hoax" column
-ufo_subset$is_hoax <- grepl(paste0("\\b(", paste(hoax_keywords, collapse = "|"), ")\\b"), ufo_subset$comments, ignore.case = TRUE)
-View(ufo_subset)
+ufo_modified$is_hoax <- grepl(paste0("\\b(", paste(hoax_keywords, collapse = "|"), ")\\b"), ufo_modified$comments, ignore.case = TRUE)
+View(ufo_modified)
 
-# Calculating the count of hoax and non-hoax sightings per country
-hoax_count <- table(ufo_subset$country, ufo_subset$is_hoax)
+# Calculating the count of hoax and non-hoax sightings per country 
+hoax_count <- table(ufo_modified$country, ufo_modified$is_hoax)
 # Calculating the percentage of hoax sightings per country
 hoax_percentage <- prop.table(hoax_count, margin = 1) * 100
 # Creating a data frame from the table
@@ -50,17 +50,17 @@ colnames(hoax_percentage_df) <- c("Country", "Hoax Validity", "Percentage")
 print(hoax_percentage_df)
 
 # Adding a new column "report_delay" and calculate the time difference in days
-ufo_subset$report_delay <- as.numeric(difftime(ufo_subset$date_posted, ufo_subset$datetime, units = "days"))
-View(ufo_subset)
+ufo_modified <- ufo_modified %>%
+  mutate(report_delay = as.numeric(difftime(date_posted, datetime, units = "days")))
+View(ufo_modified)
 
 # Removing rows where the sighting was reported before it happened
-ufo_subset <- ufo_subset[!(ufo_subset$report_delay < 0), ]
-View(ufo_subset)
+ufo_modified <- ufo_modified %>%
+  filter(report_delay >= 0)
+View(ufo_modified)
 
-# Calculating the report delay in days
-ufo_subset$report_delay <- as.numeric(difftime(ufo_subset$date_posted, ufo_subset$datetime, units = "days"))
-# Calculating the average report delay per country using dplyr
-average_report_delay <- ufo_subset %>%
+# Calculating the average report delay per country 
+average_report_delay <- ufo_modified %>%
   group_by(country) %>%
   summarize(Average_Report_Delay = mean(report_delay))
 # Sorting the table by average report delay
@@ -70,19 +70,17 @@ print(average_report_delay)
 
 # Checking the duration seconds column for errors 
 # Checking for NA by using the sum function
-missing_values <- sum(is.na(ufo_subset$duration.seconds))
+missing_values <- sum(is.na(ufo_modified$duration.seconds))
 missing_values
-ufo_subset <- ufo_subset[!ufo_subset$duration.seconds == "", ]
-
+ufo_modified <- ufo_modified[!ufo_modified$duration.seconds == "", ]
 # Checking format
-data_format <- class(ufo_subset$duration.seconds)
+data_format <- class(ufo_modified$duration.seconds)
+ufo_modified$duration_seconds <- as.numeric(ufo_modified$duration.seconds)
+ufo_modified$duration_seconds <- as.numeric(as.character(ufo_modified$duration.seconds))
 data_format
-ufo_subset$duration_seconds <- as.numeric(ufo_subset$duration.seconds)
-ufo_subset$duration_seconds <- as.numeric(as.character(ufo_subset$duration.seconds))
-
 # Checking range and removing numbers that are not within it
-ufo_subset <- ufo_subset[ufo_subset$duration.seconds >= 10 & ufo_subset$duration.seconds <= 1000, ]
-View(ufo_subset)
+ufo_modified <- ufo_modified[ufo_modified$duration.seconds >= 10 & ufo_modified$duration.seconds <= 1000, ]
+View(ufo_modified)
 
 # Plotting histogram 
-hist(ufo_subset$duration_seconds, xlab = "Duration (seconds)", ylab = "Frequency", main = "Histogram of Duration in Seconds")
+hist(ufo_modified$duration_seconds, xlab = "Duration (seconds)", ylab = "Frequency", main = "Histogram of Duration in Seconds")
