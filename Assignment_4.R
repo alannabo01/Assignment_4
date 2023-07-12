@@ -67,16 +67,16 @@ average_report_delay <- average_report_delay[order(average_report_delay$Average_
 print(average_report_delay)
 
 # Checking the duration seconds column for errors 
-# Checking for NA by using the sum function
+  # Checking for NA by using the sum function
 missing_values <- sum(is.na(ufo_modified$duration.seconds))
 missing_values
 ufo_modified <- ufo_modified[!ufo_modified$duration.seconds == "", ]
-# Checking format
+  # Checking format
 data_format <- class(ufo_modified$duration.seconds)
 ufo_modified$duration_seconds <- as.numeric(ufo_modified$duration.seconds)
 ufo_modified$duration_seconds <- as.numeric(as.character(ufo_modified$duration.seconds))
 data_format
-# Checking range and removing numbers that are not within it
+  # Checking range and removing numbers that are not within it
 ufo_modified <- ufo_modified[ufo_modified$duration.seconds >= 10 & ufo_modified$duration.seconds <= 1000, ]
 View(ufo_modified)
 
