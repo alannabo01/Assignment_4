@@ -38,16 +38,14 @@ hoax_keywords <- c("fake", "hoax", "prank", "fabricated", "fraud")
 ufo_modified$is_hoax <- grepl(paste0("\\b(", paste(hoax_keywords, collapse = "|"), ")\\b"), ufo_modified$comments, ignore.case = TRUE)
 View(ufo_modified)
 
-# Calculating the count of hoax and non-hoax sightings per country 
-hoax_count <- table(ufo_modified$country, ufo_modified$is_hoax)
 # Calculating the percentage of hoax sightings per country
-hoax_percentage <- prop.table(hoax_count, margin = 1) * 100
-# Creating a data frame from the table
-hoax_percentage_df <- as.data.frame(hoax_percentage)
-# Renaming the columns
-colnames(hoax_percentage_df) <- c("Country", "Hoax Validity", "Percentage")
+hoax_percentage <- with(ufo_modified, prop.table(table(country, is_hoax), margin = 1) * 100)
+# Creating a table with country names and hoax sighting percentages
+table_data <- data.frame(Country = rownames(hoax_percentage), Percentage = hoax_percentage[, "TRUE"])
+# Sorting the table in descending order based on the percentage column
+sorted_table <- table_data[order(-table_data$Percentage), ]
 # Printing the table
-print(hoax_percentage_df)
+print(sorted_table)
 
 # Adding a new column "report_delay" and calculate the time difference in days
 ufo_modified <- ufo_modified %>%
